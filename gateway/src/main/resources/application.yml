@@ -1,0 +1,34 @@
+server:
+  port: 9004
+
+management:
+  endpoint.gateway.enabled: true
+  endpoints.web.exposure.include: gateway
+
+spring:
+  application.name: gateway
+  cloud:
+    config:
+      import-check.enabled: false
+    gateway:
+      discovery.locator.enabled: true
+      routes:
+        - id: review-service-id
+          uri: lb://review-service
+          predicates:
+          - Method=GET,POST,PUT,DELETE
+          filters:
+          - AuthFilter
+        - id: product-service-id
+          uri: lb://product-service
+          predicates:
+          - Method=GET
+        - id: authentication-service-in
+          uri: lb://authentication-service
+          predicates:
+            Path=/api/v1/authentication/login
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka

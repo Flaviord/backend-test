@@ -1,0 +1,36 @@
+version: "3.8"
+
+volumes:
+  mysql:
+  es-data:
+
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+    ports:
+      - "${BKD_MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql:/var/lib/mysql
+      - ./mysql/conf.d/mysql.cnf:/etc/mysql/conf.d/my.cnf
+    command: mysqld --sql-mode="STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION"
+  redis:
+    image: redis:alpine
+    container_name: redis_db
+    command: redis-server --appendonly yes
+    ports:
+      - 6379:6379
+    volumes:
+      - ./data:/data
+    restart: always
+  es:
+    environment:
+      ES_HOSTS: "0.0.0.0:9299"
+      ES_JAVA_OPTS: "-Xms750m -Xmx750m"
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:6.7.2
+    ports:
+      - "9299:9201"
+      - "9399:9300"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data

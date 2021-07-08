@@ -1,0 +1,4 @@
+[mysqld]
+max_allowed_packet = 1073741824
+innodb_log_file_size = 320M
+explicit_defaults_for_timestamp = on
